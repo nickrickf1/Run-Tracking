@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: run_tracker_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: runtracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - runtracker_pg:/var/lib/postgresql/data
+
+volumes:
+  runtracker_pg:

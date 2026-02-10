@@ -1,0 +1,68 @@
+# =========================
+# IDE / Editors
+# =========================
+.idea/
+.vscode/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Node / JS
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.local
+.env.*.local
+
+# =========================
+# Build outputs
+# =========================
+dist/
+build/
+
+# =========================
+# Vite
+# =========================
+.vite/
+
+# =========================
+# Prisma
+# =========================
+apps/backend/prisma/migrations/**/migration.sql
+apps/backend/prisma/dev.db
+
+# =========================
+# Docker
+# =========================
+docker-data/
+*.pid
+
+# =========================
+# Coverage / Tests
+# =========================
+coverage/
+
+# =========================
+# Logs
+# =========================
+logs
+*.log
+
+# =========================
+# Temporary / cache
+# =========================
+.cache/
+.tmp/
+.temp/
