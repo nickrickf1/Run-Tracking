@@ -3,6 +3,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
+import Runs from "../pages/Runs";
+import RunEditor from "../pages/RunEditor";
 
 export default function AppRouter() {
     return (
@@ -16,6 +18,33 @@ export default function AppRouter() {
                     element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/runs"
+                    element={
+                        <ProtectedRoute>
+                            <Runs />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/runs/new"
+                    element={
+                        <ProtectedRoute>
+                            <RunEditor mode="create" />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/runs/:id/edit"
+                    element={
+                        <ProtectedRoute>
+                            <RunEditor mode="edit" />
                         </ProtectedRoute>
                     }
                 />

@@ -1,0 +1,27 @@
+import { apiFetch } from "./api";
+
+export function listRuns(token, { page = 1, pageSize = 10, from, to, type } = {}) {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    if (type) params.set("type", type);
+    return apiFetch(`/runs?${params.toString()}`, { token });
+}
+
+export function getRun(token, id) {
+    return apiFetch(`/runs/${id}`, { token });
+}
+
+export function createRun(token, body) {
+    return apiFetch("/runs", { method: "POST", token, body });
+}
+
+export function updateRun(token, id, body) {
+    return apiFetch(`/runs/${id}`, { method: "PATCH", token, body });
+}
+
+export function deleteRun(token, id) {
+    return apiFetch(`/runs/${id}`, { method: "DELETE", token });
+}
