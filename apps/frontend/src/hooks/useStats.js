@@ -7,6 +7,7 @@ export function useStats() {
     const [summary, setSummary] = useState(null);
     const [weekly, setWeekly] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!token) return;
@@ -19,6 +20,9 @@ export function useStats() {
                 ]);
                 setSummary(s);
                 setWeekly(w);
+            } catch (err) {
+                console.error("useStats error:", err);
+                setError(err.message);
             } finally {
                 setLoading(false);
             }
@@ -27,5 +31,5 @@ export function useStats() {
         load();
     }, [token]);
 
-    return { summary, weekly, loading };
+    return { summary, weekly, loading, error };
 }

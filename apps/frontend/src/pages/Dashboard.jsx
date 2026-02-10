@@ -1,8 +1,14 @@
 import { useAuth } from "../context/AuthContext";
+import { useStats } from "../hooks/useStats";
+import { formatPace, formatDuration } from "../utils/format";
 import Button from "../components/ui/Button";
+import StatCard from "../components/ui/StatCard";
+import WeeklyChart from "../components/charts/WeeklyChart";
+import Alert from "../components/ui/Alert";
 
 export default function Dashboard() {
     const { user, logout } = useAuth();
+    const { summary, weekly, loading: statsLoading, error } = useStats();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
@@ -23,40 +29,25 @@ export default function Dashboard() {
                     </Button>
                 </div>
 
-                {/* Stats cards */}
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 transition-shadow hover:shadow-md">
-                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Email</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-800">{user?.email}</p>
-                    </div>
-                    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 transition-shadow hover:shadow-md">
-                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Stato</p>
-                        <p className="mt-2 text-sm font-semibold text-emerald-600">Autenticato</p>
-                    </div>
-                    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 transition-shadow hover:shadow-md">
-                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Prossimo</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-800">Statistiche & Grafici</p>
-                    </div>
-                </div>
+                {/* Error */}
+                {error && <Alert>{error}</Alert>}
 
-                {/* Roadmap card */}
-                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <p className="text-sm font-bold text-slate-800">Prossimi passi</p>
-                    <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                        <li className="flex items-center gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                            Navbar + link (Dashboard, Runs)
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                            Cards KPI (summary)
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                            Grafico settimanale (weekly)
-                        </li>
-                    </ul>
-                </div>
+                {/* Stats cards */}
+                {statsLoading ? (
+                    <p className="text-sm text-slate-400">Caricamento statistiche...</p>
+                ) : summary ? (
+                    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                        <StatCard label="Corse totali" value={summary.totalRuns} />
+                        <StatCard label="Km totali" value={summary.totalDistanceKm.toFixed(1)} />
+                        <StatCard label="Tempo totale" value={formatDuration(summary.totalDurationSec)} />
+                        <StatCard label="Passo medio" value={formatPace(summary.avgPaceSecPerKm)} />
+                    </div>
+                ) : (
+                    <p className="text-sm text-slate-400">Nessuna statistica disponibile.</p>
+                )}
+
+                {/* Weekly chart */}
+                {weekly?.series && <WeeklyChart data={weekly.series} />}
             </div>
         </div>
     );
