@@ -11,13 +11,13 @@ const runCreateSchema = z.object({
     date: dateSchema,
     distanceKm: z.number().positive(),
     durationSec: z.number().int().positive(),
-    type: z.enum(['lento', 'tempo','variato','lungo','gara','forza']).optional().default('facile'),
+    type: z.enum(['lento', 'tempo','variato','lungo','gara','forza']).optional().default('lento'),
     rpe: z.number().int().min(1).max(10).optional(),
     notes: z.string().max(1000).optional(),
 });
 
 const runUpdateSchema = z.object({
-    date: dateSchema,
+    date: dateSchema.optional(),
     distanceKm: z.number().positive().optional(),
     durationSec: z.number().int().positive().optional(),
     type: z.enum(['lento', 'tempo','variato','lungo','gara','forza']).optional(),
@@ -132,7 +132,7 @@ async function updateRun(req, res) {
         const existing = await prisma.run.findFirst({where:{id, userId}});
         if (!existing) return res.status(404).json({message: "Corsa non trovata"});
 
-        const data = parsed.data();
+        const data = parsed.data;
 
         const updated = await prisma.run.update({
             where:{id},
@@ -162,6 +162,7 @@ async function deleteRun(req, res) {
         if (!existing) return res.status(404).json({message: "Corsa non trovata"});
 
         await prisma.run.delete({where:{id}});
+        return res.status(204).end();
     }catch (err){
         console.error("Errore di eliminazione attivita'", err);
         return res.status(500).json({message:"Eliminazione corsa fallita", error: err.message });
