@@ -30,14 +30,14 @@ export default function Login() {
 
     return (
         <AuthLayout
-            title="Accedi"
-            subtitle="Entra e gestisci le tue corse, statistiche e progressi."
+            title="Bentornato"
+            subtitle="Accedi per gestire le tue corse, statistiche e progressi."
         >
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} className="space-y-5">
                 {err && <Alert>{err}</Alert>}
 
-                <div className="space-y-1">
-                    <label className="text-sm font-medium text-slate-700">Email</label>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700">Email</label>
                     <Input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -46,8 +46,8 @@ export default function Login() {
                     />
                 </div>
 
-                <div className="space-y-1">
-                    <label className="text-sm font-medium text-slate-700">Password</label>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700">Password</label>
                     <Input
                         type="password"
                         value={password}
@@ -58,12 +58,12 @@ export default function Login() {
                 </div>
 
                 <Button className="w-full" disabled={loading}>
-                    {loading ? "Accesso..." : "Entra"}
+                    {loading ? "Accesso in corso..." : "Accedi"}
                 </Button>
 
-                <p className="text-sm text-slate-600">
+                <p className="text-center text-sm text-slate-500">
                     Non hai un account?{" "}
-                    <Link className="font-medium text-slate-900 underline underline-offset-4" to="/register">
+                    <Link className="font-semibold text-slate-900 underline underline-offset-4 hover:text-slate-700" to="/register">
                         Registrati
                     </Link>
                 </p>
