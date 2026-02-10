@@ -3,9 +3,12 @@ const cors = require('cors')
 
 const authRoutes = require('./routes/auth.routes')
 const app = express()
+const runsRoutes = require('./routes/runs.routes')
 
 app.use(cors({origin:true, credentials: true}));
 app.use(express.json())
+
+app.use("/runs", runsRoutes)
 
 app.get('/health',(req,res)=>{
     res.json({ok:true});
