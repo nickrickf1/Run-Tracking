@@ -38,7 +38,7 @@ export default function Register() {
                 {err && <Alert>{err}</Alert>}
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700">Nome</label>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nome</label>
                     <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -48,7 +48,7 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700">Email</label>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
                     <Input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -58,7 +58,7 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700">Password</label>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                     <Input
                         type="password"
                         value={password}
@@ -73,9 +73,9 @@ export default function Register() {
                     {loading ? "Creazione in corso..." : "Crea account"}
                 </Button>
 
-                <p className="text-center text-sm text-slate-500">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400">
                     Hai gia un account?{" "}
-                    <Link className="font-semibold text-slate-900 underline underline-offset-4 hover:text-slate-700" to="/login">
+                    <Link className="font-semibold text-slate-900 underline underline-offset-4 hover:text-slate-700 dark:text-white dark:hover:text-slate-300" to="/login">
                         Accedi
                     </Link>
                 </p>

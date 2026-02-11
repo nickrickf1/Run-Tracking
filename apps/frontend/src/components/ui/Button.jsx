@@ -9,6 +9,7 @@ export default function Button({ children, className = "", ...props }) {
                 "active:scale-[0.98]",
                 "focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2",
                 "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm",
+                "dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 dark:focus:ring-offset-slate-900",
                 className,
             ].join(" ")}
             {...props}

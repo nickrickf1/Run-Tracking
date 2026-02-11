@@ -7,12 +7,11 @@ import { useAuth } from "../context/AuthContext";
 import { changeMyPassword, updateMe } from "../services/users";
 
 export default function Profile() {
-    const { token, user } = useAuth();
+    const { token, user, updateUser } = useAuth();
 
     const [name, setName] = useState(user?.name || "");
     const [msg, setMsg] = useState("");
     const [err, setErr] = useState("");
-
     const [savingName, setSavingName] = useState(false);
 
     const [currentPassword, setCurrentPassword] = useState("");
@@ -26,9 +25,8 @@ export default function Profile() {
         setSavingName(true);
         try {
             const res = await updateMe(token, { name: name.trim() });
-            setMsg("Nome aggiornato ✅");
-            // Nota: se vuoi aggiornare anche l'header subito, conviene aggiungere una funzione nel AuthContext
-            // che aggiorna user nello state. Per ora va bene: al refresh / re-login si vede.
+            updateUser({ name: res.user.name });
+            setMsg("Nome aggiornato");
         } catch (e2) {
             setErr(e2.message);
         } finally {
@@ -43,7 +41,7 @@ export default function Profile() {
         setSavingPwd(true);
         try {
             await changeMyPassword(token, { currentPassword, newPassword });
-            setMsg("Password aggiornata ✅");
+            setMsg("Password aggiornata");
             setCurrentPassword("");
             setNewPassword("");
         } catch (e2) {
@@ -55,21 +53,24 @@ export default function Profile() {
 
     return (
         <AppShell title="Profilo">
-            <div className="space-y-4">
+            <div className="space-y-5 max-w-xl">
                 {err && <Alert>{err}</Alert>}
                 {msg && (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                    <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400">
+                        <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                        </svg>
                         {msg}
                     </div>
                 )}
 
-                <div className="rounded-2xl bg-white p-4 shadow">
-                    <h2 className="text-sm font-semibold">Dati account</h2>
-                    <p className="mt-1 text-sm text-slate-600">{user?.email}</p>
+                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800 transition-colors">
+                    <h2 className="text-sm font-bold text-slate-800 dark:text-white">Dati account</h2>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
 
-                    <form onSubmit={onSaveName} className="mt-4 space-y-3 max-w-md">
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Nome</label>
+                    <form onSubmit={onSaveName} className="mt-5 space-y-3">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nome</label>
                             <Input value={name} onChange={(e) => setName(e.target.value)} />
                         </div>
                         <Button disabled={savingName}>
@@ -78,12 +79,12 @@ export default function Profile() {
                     </form>
                 </div>
 
-                <div className="rounded-2xl bg-white p-4 shadow">
-                    <h2 className="text-sm font-semibold">Cambia password</h2>
+                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800 transition-colors">
+                    <h2 className="text-sm font-bold text-slate-800 dark:text-white">Cambia password</h2>
 
-                    <form onSubmit={onChangePassword} className="mt-4 space-y-3 max-w-md">
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Password attuale</label>
+                    <form onSubmit={onChangePassword} className="mt-5 space-y-3">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password attuale</label>
                             <Input
                                 type="password"
                                 value={currentPassword}
@@ -91,8 +92,8 @@ export default function Profile() {
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Nuova password</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nuova password</label>
                             <Input
                                 type="password"
                                 value={newPassword}

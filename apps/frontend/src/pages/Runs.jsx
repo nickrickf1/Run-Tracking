@@ -47,16 +47,16 @@ export default function Runs() {
         return Math.max(1, Math.ceil((data.total || 0) / pageSize));
     }, [data.total]);
 
-    async function load(p = page) {
+    async function load(p = page, filters = { from, to, type }) {
         setErr("");
         setLoading(true);
         try {
             const res = await listRuns(token, {
                 page: p,
                 pageSize,
-                from: from || undefined,
-                to: to || undefined,
-                type: type || undefined,
+                from: filters.from || undefined,
+                to: filters.to || undefined,
+                type: filters.type || undefined,
             });
             setData(res);
         } catch (e) {
@@ -84,14 +84,13 @@ export default function Runs() {
         setTo("");
         setType("");
         setPage(1);
-        await load(1);
+        await load(1, { from: "", to: "", type: "" });
     }
 
     async function onDelete(id) {
         if (!confirm("Eliminare questa corsa?")) return;
         try {
             await deleteRun(token, id);
-            // se cancelli l'ultima della pagina, torna indietro di una pagina
             const newPage = Math.min(page, Math.max(1, Math.ceil((data.total - 1) / pageSize)));
             setPage(newPage);
             await load(newPage);
@@ -120,22 +119,22 @@ export default function Runs() {
             {/* Filtri */}
             <form
                 onSubmit={onApplyFilters}
-                className="mt-4 rounded-2xl bg-white p-4 shadow grid gap-4 md:grid-cols-4"
+                className="mt-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 grid gap-4 md:grid-cols-4 dark:bg-slate-900 dark:ring-slate-800 transition-colors"
             >
-                <div className="space-y-1">
-                    <label className="text-sm font-medium">Da</label>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Da</label>
                     <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
                 </div>
 
-                <div className="space-y-1">
-                    <label className="text-sm font-medium">A</label>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">A</label>
                     <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
                 </div>
 
-                <div className="space-y-1">
-                    <label className="text-sm font-medium">Tipo</label>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tipo</label>
                     <select
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-700"
                         value={type}
                         onChange={(e) => setType(e.target.value)}
                     >
@@ -152,7 +151,7 @@ export default function Runs() {
                     <Button
                         type="button"
                         onClick={onClearFilters}
-                        className="w-full bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
+                        className="w-full bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
                     >
                         Reset
                     </Button>
@@ -162,42 +161,42 @@ export default function Runs() {
             {/* Lista */}
             <div className="mt-4 space-y-3">
                 {loading ? (
-                    <div className="text-sm text-slate-600">Caricamento…</div>
+                    <div className="text-sm text-slate-500">Caricamento...</div>
                 ) : data.runs.length === 0 ? (
-                    <div className="rounded-2xl bg-white p-4 shadow text-sm text-slate-600">
+                    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 text-sm text-slate-500 dark:bg-slate-900 dark:ring-slate-800">
                         Nessuna corsa trovata.
                     </div>
                 ) : (
                     data.runs.map((r) => (
                         <div
                             key={r.id}
-                            className="rounded-2xl bg-white p-4 shadow flex items-center justify-between gap-4"
+                            className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 flex items-center justify-between gap-4 transition-shadow hover:shadow-md dark:bg-slate-900 dark:ring-slate-800"
                         >
                             <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <div className="text-sm font-semibold">{formatDate(r.date)}</div>
-                                    <span className="text-xs rounded-full bg-slate-100 px-2 py-1">{r.type}</span>
+                                    <div className="text-sm font-bold text-slate-900 dark:text-white">{formatDate(r.date)}</div>
+                                    <span className="text-xs rounded-full bg-slate-100 px-2.5 py-1 font-medium dark:bg-slate-800 dark:text-slate-300">{r.type}</span>
                                     {r.rpe != null && (
-                                        <span className="text-xs rounded-full bg-slate-100 px-2 py-1">RPE {r.rpe}</span>
+                                        <span className="text-xs rounded-full bg-slate-100 px-2.5 py-1 font-medium dark:bg-slate-800 dark:text-slate-300">RPE {r.rpe}</span>
                                     )}
                                 </div>
 
-                                <div className="mt-1 text-sm text-slate-700">
-                                    <span className="font-medium">{Number(r.distanceKm).toFixed(1)} km</span>{" "}
-                                    • {Math.round(Number(r.durationSec) / 60)} min • {formatPace(r.distanceKm, r.durationSec)}
+                                <div className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
+                                    <span className="font-semibold text-slate-800 dark:text-slate-200">{Number(r.distanceKm).toFixed(1)} km</span>{" "}
+                                    · {Math.round(Number(r.durationSec) / 60)} min · {formatPace(r.distanceKm, r.durationSec)}
                                 </div>
 
-                                {r.notes && <div className="mt-1 text-sm text-slate-600 truncate">{r.notes}</div>}
+                                {r.notes && <div className="mt-1 text-sm text-slate-500 dark:text-slate-500 truncate">{r.notes}</div>}
                             </div>
 
                             <div className="flex shrink-0 items-center gap-2">
                                 <Link to={`/runs/${r.id}/edit`}>
-                                    <Button className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50">
+                                    <Button className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700">
                                         Modifica
                                     </Button>
                                 </Link>
                                 <Button
-                                    className="bg-white text-red-700 border border-red-200 hover:bg-red-50"
+                                    className="bg-white !text-red-600 border border-red-200 hover:bg-red-50 dark:bg-slate-800 dark:!text-red-400 dark:border-red-900 dark:hover:bg-red-950"
                                     onClick={() => onDelete(r.id)}
                                 >
                                     Elimina
@@ -209,29 +208,31 @@ export default function Runs() {
             </div>
 
             {/* Paginazione */}
-            <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm text-slate-600">
-                    Pagina <span className="font-medium">{data.page}</span> di{" "}
-                    <span className="font-medium">{totalPages}</span> • Totale: {data.total}
-                </div>
+            {!loading && data.total > 0 && (
+                <div className="mt-6 flex items-center justify-between">
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Pagina <span className="font-semibold text-slate-700 dark:text-slate-200">{data.page}</span> di{" "}
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">{totalPages}</span> · {data.total} corse
+                    </div>
 
-                <div className="flex gap-2">
-                    <Button
-                        className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
-                        onClick={() => goToPage(page - 1)}
-                        disabled={page <= 1 || loading}
-                    >
-                        ←
-                    </Button>
-                    <Button
-                        className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
-                        onClick={() => goToPage(page + 1)}
-                        disabled={page >= totalPages || loading}
-                    >
-                        →
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
+                            onClick={() => goToPage(page - 1)}
+                            disabled={page <= 1 || loading}
+                        >
+                            ←
+                        </Button>
+                        <Button
+                            className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
+                            onClick={() => goToPage(page + 1)}
+                            disabled={page >= totalPages || loading}
+                        >
+                            →
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            )}
         </AppShell>
     );
 }

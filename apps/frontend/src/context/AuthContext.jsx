@@ -60,8 +60,12 @@ export function AuthProvider({ children }) {
         setUser(null);
     }
 
+    function updateUser(fields) {
+        setUser((prev) => prev ? { ...prev, ...fields } : prev);
+    }
+
     const value = useMemo(
-        () => ({ token, user, loading, login, register, logout }),
+        () => ({ token, user, loading, login, register, logout, updateUser }),
         [token, user, loading]
     );
 

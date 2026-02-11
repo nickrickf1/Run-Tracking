@@ -19,7 +19,7 @@ export default function RunEditor({ mode }) {
     const [saving, setSaving] = useState(false);
 
     const [form, setForm] = useState({
-        date: "",          // YYYY-MM-DD
+        date: "",
         distanceKm: "",
         durationSec: "",
         type: "lento",
@@ -63,7 +63,6 @@ export default function RunEditor({ mode }) {
         setSaving(true);
 
         try {
-            // converto ai tipi corretti per Zod backend
             const payload = {
                 date: form.date,
                 distanceKm: Number(form.distanceKm),
@@ -91,13 +90,25 @@ export default function RunEditor({ mode }) {
         }
     }
 
+    const selectClass = [
+        "w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm",
+        "transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400",
+        "dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-700",
+    ].join(" ");
+
+    const textareaClass = [
+        "w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm min-h-[110px]",
+        "transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400",
+        "dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-700",
+    ].join(" ");
+
     return (
         <AppShell
             title={mode === "edit" ? "Modifica corsa" : "Nuova corsa"}
             right={
                 <Link to="/runs">
-                    <Button className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50">
-                        ← Indietro
+                    <Button className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700">
+                        Indietro
                     </Button>
                 </Link>
             }
@@ -105,19 +116,19 @@ export default function RunEditor({ mode }) {
             {err && <Alert>{err}</Alert>}
 
             {loading ? (
-                <div className="text-sm text-slate-600">Caricamento…</div>
+                <div className="text-sm text-slate-500">Caricamento...</div>
             ) : (
-                <form onSubmit={onSubmit} className="rounded-2xl bg-white p-4 shadow space-y-4 max-w-xl">
+                <form onSubmit={onSubmit} className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 space-y-5 max-w-xl dark:bg-slate-900 dark:ring-slate-800 transition-colors">
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Data</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Data</label>
                             <Input type="date" value={form.date} onChange={(e) => setField("date", e.target.value)} />
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Tipo</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tipo</label>
                             <select
-                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                                className={selectClass}
                                 value={form.type}
                                 onChange={(e) => setField("type", e.target.value)}
                             >
@@ -127,8 +138,8 @@ export default function RunEditor({ mode }) {
                             </select>
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Distanza (km)</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Distanza (km)</label>
                             <Input
                                 inputMode="decimal"
                                 value={form.distanceKm}
@@ -137,19 +148,19 @@ export default function RunEditor({ mode }) {
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Durata (secondi)</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Durata (secondi)</label>
                             <Input
                                 inputMode="numeric"
                                 value={form.durationSec}
                                 onChange={(e) => setField("durationSec", e.target.value)}
                                 placeholder="2700"
                             />
-                            <p className="text-xs text-slate-500">Tip: 2700 = 45 minuti</p>
+                            <p className="text-xs text-slate-400">Tip: 2700 = 45 minuti</p>
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">RPE (1–10)</label>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">RPE (1-10)</label>
                             <Input
                                 inputMode="numeric"
                                 value={form.rpe}
@@ -159,20 +170,20 @@ export default function RunEditor({ mode }) {
                         </div>
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium">Note</label>
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Note</label>
                         <textarea
-                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm min-h-[110px] focus:outline-none focus:ring-2 focus:ring-slate-400"
+                            className={textareaClass}
                             value={form.notes}
                             onChange={(e) => setField("notes", e.target.value)}
-                            placeholder="Come è andata…"
+                            placeholder="Come e andata..."
                         />
                     </div>
 
                     <div className="flex gap-2">
                         <Button disabled={saving}>{saving ? "Salvataggio..." : "Salva"}</Button>
                         <Link to="/runs">
-                            <Button className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50" type="button">
+                            <Button className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700" type="button">
                                 Annulla
                             </Button>
                         </Link>

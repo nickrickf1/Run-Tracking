@@ -37,7 +37,7 @@ export default function Login() {
                 {err && <Alert>{err}</Alert>}
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700">Email</label>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
                     <Input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -47,7 +47,7 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700">Password</label>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                     <Input
                         type="password"
                         value={password}
@@ -61,9 +61,9 @@ export default function Login() {
                     {loading ? "Accesso in corso..." : "Accedi"}
                 </Button>
 
-                <p className="text-center text-sm text-slate-500">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400">
                     Non hai un account?{" "}
-                    <Link className="font-semibold text-slate-900 underline underline-offset-4 hover:text-slate-700" to="/register">
+                    <Link className="font-semibold text-slate-900 underline underline-offset-4 hover:text-slate-700 dark:text-white dark:hover:text-slate-300" to="/register">
                         Registrati
                     </Link>
                 </p>

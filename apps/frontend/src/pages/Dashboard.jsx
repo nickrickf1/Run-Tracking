@@ -12,14 +12,12 @@ export default function Dashboard() {
 
     return (
         <AppShell title="Dashboard">
-            <p className="mb-6 text-sm text-slate-500">
-                Bentornato, <span className="font-semibold text-slate-700">{user?.name}</span>
+            <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
+                Bentornato, <span className="font-semibold text-slate-700 dark:text-slate-200">{user?.name}</span>
             </p>
 
-            {/* Error */}
             {error && <Alert>{error}</Alert>}
 
-            {/* Stats cards */}
             {statsLoading ? (
                 <p className="text-sm text-slate-400">Caricamento statistiche...</p>
             ) : summary ? (
@@ -33,7 +31,6 @@ export default function Dashboard() {
                 <p className="text-sm text-slate-400">Nessuna statistica disponibile.</p>
             )}
 
-            {/* Weekly chart */}
             {weekly?.series && <div className="mt-6"><WeeklyChart data={weekly.series} /></div>}
         </AppShell>
     );
