@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth.routes')
 const app = express()
 const runsRoutes = require('./routes/runs.routes')
 const statsRoutes = require('./routes/stats.routes')
+const usersRoutes = require("./routes/users.routes");
 
 const allowedOrigins = [
     "http://localhost:5173",
@@ -31,6 +32,7 @@ app.use("/stats", statsRoutes)
 app.get('/health',(req,res)=>{
     res.json({ok:true});
 });
+app.use("/users", usersRoutes);
 
 app.use("/auth", authRoutes);
 

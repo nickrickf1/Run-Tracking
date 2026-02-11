@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../ui/Button";
+import { useTheme } from "../../context/ThemeContext";
 
 function NavLink({ to, children }) {
     const { pathname } = useLocation();
@@ -20,6 +21,7 @@ function NavLink({ to, children }) {
 
 export default function AppShell({ title, children, right }) {
     const { user, logout } = useAuth();
+    const { theme, toggleTheme } = useTheme();
 
     return (
         <div className="min-h-screen">
@@ -30,6 +32,8 @@ export default function AppShell({ title, children, right }) {
                         <div className="hidden sm:flex items-center gap-2">
                             <NavLink to="/dashboard">Dashboard</NavLink>
                             <NavLink to="/runs">Corse</NavLink>
+                            <NavLink to="/profile">Profilo</NavLink>
+
                         </div>
                     </div>
 
@@ -38,6 +42,14 @@ export default function AppShell({ title, children, right }) {
                         <div className="hidden sm:block text-sm text-slate-600">
                             {user?.name}
                         </div>
+                        <Button
+                            className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
+                            onClick={toggleTheme}
+                            title="Cambia tema"
+                        >
+                            {theme === "dark" ? "☀️" : "🌙"}
+                        </Button>
+
                         <Button
                             className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
                             onClick={logout}

@@ -5,6 +5,7 @@ import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Runs from "../pages/Runs";
 import RunEditor from "../pages/RunEditor";
+import Profile from "../pages/Profile";
 
 export default function AppRouter() {
     return (
@@ -39,6 +40,15 @@ export default function AppRouter() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+
 
                 <Route
                     path="/runs/:id/edit"
