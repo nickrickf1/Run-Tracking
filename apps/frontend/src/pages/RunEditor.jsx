@@ -8,6 +8,32 @@ import { useAuth } from "../context/AuthContext";
 import { createRun, getRun, updateRun } from "../services/runs";
 
 const TYPES = ["lento", "tempo", "variato", "lungo", "gara", "forza"];
+function toIntOrZero(v) {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function clamp(n, min, max) {
+    return Math.min(Math.max(n, min), max);
+}
+
+function formatPace(distanceKm, totalSec) {
+    const d = Number(distanceKm);
+    const t = Number(totalSec);
+    if (!d || !t || d <= 0 || t <= 0) return "-";
+    const pace = t / d; // sec/km
+    const m = Math.floor(pace / 60);
+    const s = Math.round(pace % 60);
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")} / km`;
+}
+
+function formatDuration(totalSec) {
+    const t = Number(totalSec);
+    if (!t || t <= 0) return "-";
+    const m = Math.floor(t / 60);
+    const s = t % 60;
+    return `${m}m ${String(s).padStart(2, "0")}s`;
+}
 
 export default function RunEditor({ mode }) {
     const { token } = useAuth();
@@ -19,13 +45,15 @@ export default function RunEditor({ mode }) {
     const [saving, setSaving] = useState(false);
 
     const [form, setForm] = useState({
-        date: "",
+        date: "",          // YYYY-MM-DD
         distanceKm: "",
-        durationSec: "",
+        durationMin: "",   // nuovo
+        durationSec: "",   // nuovo (secondi 0-59)
         type: "lento",
         rpe: "",
         notes: "",
     });
+
 
     useEffect(() => {
         if (mode !== "edit") return;
@@ -37,14 +65,20 @@ export default function RunEditor({ mode }) {
                 const res = await getRun(token, id);
                 const r = res.run;
 
+                const total = Number(r.durationSec || 0);
+                const mm = Math.floor(total / 60);
+                const ss = total % 60;
+
                 setForm({
                     date: new Date(r.date).toISOString().slice(0, 10),
                     distanceKm: String(Number(r.distanceKm)),
-                    durationSec: String(Number(r.durationSec)),
+                    durationMin: String(mm),
+                    durationSec: String(ss),
                     type: r.type || "lento",
                     rpe: r.rpe == null ? "" : String(r.rpe),
                     notes: r.notes || "",
                 });
+
             } catch (e) {
                 setErr(e.message);
             } finally {
@@ -66,11 +100,12 @@ export default function RunEditor({ mode }) {
             const payload = {
                 date: form.date,
                 distanceKm: Number(form.distanceKm),
-                durationSec: Number(form.durationSec),
+                durationSec, // <-- calcolata
                 type: form.type,
                 notes: form.notes?.trim() ? form.notes.trim() : undefined,
                 rpe: form.rpe === "" ? undefined : Number(form.rpe),
             };
+
 
             if (!payload.date) throw new Error("Inserisci la data");
             if (!isFinite(payload.distanceKm) || payload.distanceKm <= 0) throw new Error("Distanza non valida");
@@ -101,6 +136,15 @@ export default function RunEditor({ mode }) {
         "transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400",
         "dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-700",
     ].join(" ");
+
+    const totalDurationSec =
+        clamp(toIntOrZero(form.durationMin), 0, 100000) * 60 +
+        clamp(toIntOrZero(form.durationSec), 0, 59);
+
+    const livePace = formatPace(form.distanceKm, totalDurationSec);
+    const liveDuration = formatDuration(totalDurationSec);
+
+
 
     return (
         <AppShell
@@ -149,26 +193,31 @@ export default function RunEditor({ mode }) {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Durata (secondi)</label>
-                            <Input
-                                inputMode="numeric"
-                                value={form.durationSec}
-                                onChange={(e) => setField("durationSec", e.target.value)}
-                                placeholder="2700"
-                            />
-                            <p className="text-xs text-slate-400">Tip: 2700 = 45 minuti</p>
-                        </div>
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium">Durata</label>
 
-                        <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">RPE (1-10)</label>
-                            <Input
-                                inputMode="numeric"
-                                value={form.rpe}
-                                onChange={(e) => setField("rpe", e.target.value)}
-                                placeholder="5"
-                            />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Input
+                                        inputMode="numeric"
+                                        value={form.durationMin}
+                                        onChange={(e) => setField("durationMin", e.target.value)}
+                                        placeholder="min"
+                                    />
+                                    <Input
+                                        inputMode="numeric"
+                                        value={form.durationSec}
+                                        onChange={(e) => setField("durationSec", e.target.value)}
+                                        placeholder="sec (0-59)"
+                                    />
+                                </div>
+
+                                <p className="text-xs text-slate-500">
+                                    Totale: <span className="font-medium">{liveDuration}</span> • Passo:{" "}
+                                    <span className="font-medium">{livePace}</span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                        </div>
 
                     <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Note</label>
