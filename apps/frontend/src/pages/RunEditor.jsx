@@ -6,34 +6,9 @@ import Button from "../components/ui/Button";
 import Alert from "../components/ui/Alert";
 import { useAuth } from "../context/AuthContext";
 import { createRun, getRun, updateRun } from "../services/runs";
+import { formatPace, formatDuration, toIntOrZero, clamp } from "../utils/format";
 
 const TYPES = ["lento", "tempo", "variato", "lungo", "gara", "forza"];
-function toIntOrZero(v) {
-    const n = parseInt(v, 10);
-    return Number.isFinite(n) ? n : 0;
-}
-
-function clamp(n, min, max) {
-    return Math.min(Math.max(n, min), max);
-}
-
-function formatPace(distanceKm, totalSec) {
-    const d = Number(distanceKm);
-    const t = Number(totalSec);
-    if (!d || !t || d <= 0 || t <= 0) return "-";
-    const pace = t / d; // sec/km
-    const m = Math.floor(pace / 60);
-    const s = Math.round(pace % 60);
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")} / km`;
-}
-
-function formatDuration(totalSec) {
-    const t = Number(totalSec);
-    if (!t || t <= 0) return "-";
-    const m = Math.floor(t / 60);
-    const s = t % 60;
-    return `${m}m ${String(s).padStart(2, "0")}s`;
-}
 
 export default function RunEditor({ mode }) {
     const { token } = useAuth();
@@ -58,11 +33,13 @@ export default function RunEditor({ mode }) {
     useEffect(() => {
         if (mode !== "edit") return;
 
+        const controller = new AbortController();
+
         (async () => {
             setErr("");
             setLoading(true);
             try {
-                const res = await getRun(token, id);
+                const res = await getRun(token, id, { signal: controller.signal });
                 const r = res.run;
 
                 const total = Number(r.durationSec || 0);
@@ -78,13 +55,15 @@ export default function RunEditor({ mode }) {
                     rpe: r.rpe == null ? "" : String(r.rpe),
                     notes: r.notes || "",
                 });
-
             } catch (e) {
+                if (e.name === "AbortError") return;
                 setErr(e.message);
             } finally {
                 setLoading(false);
             }
         })();
+
+        return () => controller.abort();
     }, [mode, token, id]);
 
     function setField(key, value) {
@@ -142,7 +121,7 @@ export default function RunEditor({ mode }) {
         clamp(toIntOrZero(form.durationSec), 0, 59);
 
     const livePace = formatPace(form.distanceKm, totalDurationSec);
-    const liveDuration = formatDuration(totalDurationSec);
+    const liveDuration = formatDuration(totalDurationSec, { showSeconds: true });
 
 
 

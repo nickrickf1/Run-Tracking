@@ -6,26 +6,9 @@ import Alert from "../components/ui/Alert";
 import Input from "../components/ui/Input";
 import { useAuth } from "../context/AuthContext";
 import { deleteRun, listRuns } from "../services/runs";
+import { formatDate, formatPace } from "../utils/format";
 
 const TYPES = ["", "lento", "tempo", "variato", "lungo", "gara", "forza"];
-
-function formatDate(iso) {
-    try {
-        return new Date(iso).toISOString().slice(0, 10);
-    } catch {
-        return iso;
-    }
-}
-
-function formatPace(distanceKm, durationSec) {
-    const d = Number(distanceKm);
-    const t = Number(durationSec);
-    if (!d || !t) return "-";
-    const pace = t / d;
-    const m = Math.floor(pace / 60);
-    const s = Math.round(pace % 60);
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")} / km`;
-}
 
 export default function Runs() {
     const { token } = useAuth();
@@ -217,6 +200,7 @@ export default function Runs() {
 
                     <div className="flex gap-2">
                         <Button
+                            aria-label="Pagina precedente"
                             className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
                             onClick={() => goToPage(page - 1)}
                             disabled={page <= 1 || loading}
@@ -224,6 +208,7 @@ export default function Runs() {
                             ←
                         </Button>
                         <Button
+                            aria-label="Pagina successiva"
                             className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
                             onClick={() => goToPage(page + 1)}
                             disabled={page >= totalPages || loading}

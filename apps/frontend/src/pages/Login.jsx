@@ -37,8 +37,9 @@ export default function Login() {
                 {err && <Alert>{err}</Alert>}
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
+                    <label htmlFor="login-email" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
                     <Input
+                        id="login-email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="nome@email.com"
@@ -47,8 +48,9 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
+                    <label htmlFor="login-password" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                     <Input
+                        id="login-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}

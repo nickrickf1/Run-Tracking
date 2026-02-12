@@ -25,7 +25,7 @@ export default function Dashboard() {
                     <StatCard label="Corse totali" value={summary.totalRuns} />
                     <StatCard label="Km totali" value={summary.totalDistanceKm.toFixed(1)} />
                     <StatCard label="Tempo totale" value={formatDuration(summary.totalDurationSec)} />
-                    <StatCard label="Passo medio" value={formatPace(summary.avgPaceSecPerKm)} />
+                    <StatCard label="Passo medio" value={formatPace(summary.totalDistanceKm, summary.totalDurationSec)} />
                 </div>
             ) : (
                 <p className="text-sm text-slate-400">Nessuna statistica disponibile.</p>

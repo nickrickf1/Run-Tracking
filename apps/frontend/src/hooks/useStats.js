@@ -12,15 +12,18 @@ export function useStats() {
     useEffect(() => {
         if (!token) return;
 
+        const controller = new AbortController();
+
         async function load() {
             try {
                 const [s, w] = await Promise.all([
-                    apiFetch("/stats/summary", { token }),
-                    apiFetch("/stats/weekly?weeks=12", { token }),
+                    apiFetch("/stats/summary", { token, signal: controller.signal }),
+                    apiFetch("/stats/weekly?weeks=12", { token, signal: controller.signal }),
                 ]);
                 setSummary(s);
                 setWeekly(w);
             } catch (err) {
+                if (err.name === "AbortError") return;
                 console.error("useStats error:", err);
                 setError(err.message);
             } finally {
@@ -29,6 +32,8 @@ export function useStats() {
         }
 
         load();
+
+        return () => controller.abort();
     }, [token]);
 
     return { summary, weekly, loading, error };

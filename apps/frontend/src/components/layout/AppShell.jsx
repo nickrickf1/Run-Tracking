@@ -45,7 +45,7 @@ export default function AppShell({ title, children, right }) {
                         </div>
                         <button
                             onClick={toggleTheme}
-                            title="Cambia tema"
+                            aria-label={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
                             className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                         >
                             {theme === "dark" ? "☀️" : "🌙"}

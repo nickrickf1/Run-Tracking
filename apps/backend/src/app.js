@@ -1,11 +1,18 @@
-const express = require('express')
-const cors = require('cors')
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
-const authRoutes = require('./routes/auth.routes')
-const app = express()
-const runsRoutes = require('./routes/runs.routes')
-const statsRoutes = require('./routes/stats.routes')
-const usersRoutes = require("./routes/users.routes");
+const authRoutes = require('./routes/auth.routes');
+const runsRoutes = require('./routes/runs.routes');
+const statsRoutes = require('./routes/stats.routes');
+const usersRoutes = require('./routes/users.routes');
+const { errorMiddleware } = require('./middlewares/error.middleware');
+
+const app = express();
+
+// --- Sicurezza ---
+app.use(helmet());
 
 const allowedOrigins = [
     "http://localhost:5173",
@@ -15,25 +22,36 @@ const allowedOrigins = [
 app.use(
     cors({
         origin: function (origin, callback) {
-            // allow requests with no origin (es. Postman)
             if (!origin) return callback(null, true);
             if (allowedOrigins.includes(origin)) return callback(null, true);
-            return callback(new Error("Not allowed by CORS"));
+            return callback(new Error("Non consentito da CORS"));
         },
         credentials: true,
     })
 );
 
-app.use(express.json())
+app.use(express.json({ limit: "1mb" }));
 
-app.use("/runs", runsRoutes)
-app.use("/stats", statsRoutes)
-
-app.get('/health',(req,res)=>{
-    res.json({ok:true});
+// --- Rate limiting su auth ---
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minuti
+    max: 20, // max 20 richieste per IP
+    message: { message: "Troppe richieste, riprova tra qualche minuto" },
+    standardHeaders: true,
+    legacyHeaders: false,
 });
+
+// --- Route ---
+app.get('/health', (req, res) => {
+    res.json({ ok: true });
+});
+
+app.use("/auth", authLimiter, authRoutes);
+app.use("/runs", runsRoutes);
+app.use("/stats", statsRoutes);
 app.use("/users", usersRoutes);
 
-app.use("/auth", authRoutes);
+// --- Error handler centralizzato (deve essere l'ultimo middleware) ---
+app.use(errorMiddleware);
 
 module.exports = app;

@@ -10,8 +10,8 @@ export function listRuns(token, { page = 1, pageSize = 10, from, to, type } = {}
     return apiFetch(`/runs?${params.toString()}`, { token });
 }
 
-export function getRun(token, id) {
-    return apiFetch(`/runs/${id}`, { token });
+export function getRun(token, id, { signal } = {}) {
+    return apiFetch(`/runs/${id}`, { token, signal });
 }
 
 export function createRun(token, body) {

@@ -1,6 +1,6 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-export async function apiFetch(path, { method = "GET", body, token } = {}) {
+export async function apiFetch(path, { method = "GET", body, token, signal } = {}) {
     const headers = { "Content-Type": "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -8,9 +8,9 @@ export async function apiFetch(path, { method = "GET", body, token } = {}) {
         method,
         headers,
         body: body ? JSON.stringify(body) : undefined,
+        signal,
     });
 
-    // prova a parsare json anche in caso di errore
     const text = await res.text();
     const data = text ? (() => { try { return JSON.parse(text); } catch { return { raw: text }; } })() : null;
 

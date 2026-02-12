@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { z } = require("zod");
 
 const prisma = new PrismaClient();
+const BCRYPT_ROUNDS = 12;
 
 const profileSchema = z.object({
     name: z.string().min(2),
@@ -13,12 +14,12 @@ const passwordSchema = z.object({
     newPassword: z.string().min(8),
 });
 
-async function updateProfile(req, res) {
+async function updateProfile(req, res, next) {
     try {
         const userId = req.user.userId;
         const parsed = profileSchema.safeParse(req.body);
         if (!parsed.success) {
-            return res.status(400).json({ message: "Validation error", errors: parsed.error.flatten() });
+            return res.status(400).json({ message: "Errore di validazione", errors: parsed.error.flatten() });
         }
 
         const user = await prisma.user.update({
@@ -29,32 +30,30 @@ async function updateProfile(req, res) {
 
         return res.json({ user });
     } catch (err) {
-        console.error("updateProfile error:", err);
-        return res.status(500).json({ message: "Update profile failed", error: err.message });
+        next(err);
     }
 }
 
-async function changePassword(req, res) {
+async function changePassword(req, res, next) {
     try {
         const userId = req.user.userId;
         const parsed = passwordSchema.safeParse(req.body);
         if (!parsed.success) {
-            return res.status(400).json({ message: "Validation error", errors: parsed.error.flatten() });
+            return res.status(400).json({ message: "Errore di validazione", errors: parsed.error.flatten() });
         }
 
         const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) return res.status(404).json({ message: "Utente non trovato" });
 
         const ok = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
-        if (!ok) return res.status(401).json({ message: "Current password is wrong" });
+        if (!ok) return res.status(401).json({ message: "Password attuale non corretta" });
 
-        const passwordHash = await bcrypt.hash(parsed.data.newPassword, 10);
+        const passwordHash = await bcrypt.hash(parsed.data.newPassword, BCRYPT_ROUNDS);
         await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
 
         return res.json({ ok: true });
     } catch (err) {
-        console.error("changePassword error:", err);
-        return res.status(500).json({ message: "Change password failed", error: err.message });
+        next(err);
     }
 }
 

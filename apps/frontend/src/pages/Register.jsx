@@ -38,8 +38,9 @@ export default function Register() {
                 {err && <Alert>{err}</Alert>}
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nome</label>
+                    <label htmlFor="reg-name" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nome</label>
                     <Input
+                        id="reg-name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Riccardo"
@@ -48,8 +49,9 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
+                    <label htmlFor="reg-email" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
                     <Input
+                        id="reg-email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="nome@email.com"
@@ -58,8 +60,9 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
+                    <label htmlFor="reg-password" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                     <Input
+                        id="reg-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
