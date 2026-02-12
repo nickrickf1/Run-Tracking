@@ -100,7 +100,7 @@ export default function RunEditor({ mode }) {
             const payload = {
                 date: form.date,
                 distanceKm: Number(form.distanceKm),
-                durationSec, // <-- calcolata
+                durationSec: totalDurationSec,
                 type: form.type,
                 notes: form.notes?.trim() ? form.notes.trim() : undefined,
                 rpe: form.rpe === "" ? undefined : Number(form.rpe),
@@ -194,7 +194,7 @@ export default function RunEditor({ mode }) {
 
                         <div className="space-y-1.5">
                             <div className="space-y-1">
-                                <label className="text-sm font-medium">Durata</label>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Durata</label>
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <Input
@@ -218,6 +218,17 @@ export default function RunEditor({ mode }) {
                             </div>
                         </div>
                         </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">RPE (1-10)</label>
+                        <Input
+                            inputMode="numeric"
+                            value={form.rpe}
+                            onChange={(e) => setField("rpe", e.target.value)}
+                            placeholder="6"
+                        />
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Sforzo percepito: 1 = facile, 10 = massimale</p>
+                    </div>
 
                     <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Note</label>
