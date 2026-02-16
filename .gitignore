@@ -40,7 +40,6 @@ build/
 # =========================
 # Prisma
 # =========================
-apps/backend/prisma/migrations/**/migration.sql
 apps/backend/prisma/dev.db
 
 # =========================

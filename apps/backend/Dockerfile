@@ -2,9 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copia file di dipendenze
+# Copia file di dipendenze e prisma
 COPY package.json package-lock.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 
 # Installa dipendenze (incluse dev per prisma generate)
 RUN npm ci
@@ -15,7 +16,8 @@ RUN npx prisma generate
 # Copia il resto del codice
 COPY . .
 
-# Esponi la porta
+ENV NODE_ENV=production
+
 EXPOSE 4000
 
 # Avvia: migrazione DB + server
