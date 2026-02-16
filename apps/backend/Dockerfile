@@ -16,9 +16,12 @@ RUN npx prisma generate
 # Copia il resto del codice
 COPY . .
 
+# Script di avvio con retry per aspettare il DB
+COPY start.sh ./
+RUN chmod +x start.sh
+
 ENV NODE_ENV=production
 
 EXPOSE 4000
 
-# Avvia: migrazione DB + server
-CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]
+CMD ["./start.sh"]
