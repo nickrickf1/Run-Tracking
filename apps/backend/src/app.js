@@ -51,10 +51,9 @@ app.use("/auth", authLimiter, authRoutes);
 app.use("/runs", runsRoutes);
 app.use("/stats", statsRoutes);
 app.use("/users", usersRoutes);
+app.use("/integrations/strava", stravaRoutes);
 
 // --- Error handler centralizzato (deve essere l'ultimo middleware) ---
 app.use(errorMiddleware);
-
-app.use("/integrations/strava", stravaRoutes);
 
 module.exports = app;
