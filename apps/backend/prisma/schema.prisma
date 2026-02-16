@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
-  runs         Run[]
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  runs          Run[]
+  stravaAccount StravaAccount?
 }
 
 model Run {
@@ -27,4 +28,17 @@ model Run {
   rpe         Int?
   notes       String?
   createdAt   DateTime @default(now())
+}
+
+model StravaAccount {
+  id           String @id @default(uuid())
+  userId       String @unique
+  athleteId    Int    @unique
+  accessToken  String
+  refreshToken String
+  expiresAt    Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }

@@ -8,6 +8,7 @@ const runsRoutes = require('./routes/runs.routes');
 const statsRoutes = require('./routes/stats.routes');
 const usersRoutes = require('./routes/users.routes');
 const { errorMiddleware } = require('./middlewares/error.middleware');
+const stravaRoutes = require("./integrations/strava/strava.routes");
 
 const app = express();
 
@@ -53,5 +54,7 @@ app.use("/users", usersRoutes);
 
 // --- Error handler centralizzato (deve essere l'ultimo middleware) ---
 app.use(errorMiddleware);
+
+app.use("/integrations/strava", stravaRoutes);
 
 module.exports = app;
