@@ -2,13 +2,18 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copia file di dipendenze e prisma
+# Copia file di dipendenze
 COPY package.json package-lock.json ./
-COPY prisma ./prisma/
-COPY prisma.config.ts ./
 
 # Installa dipendenze (incluse dev per prisma generate)
 RUN npm ci
+
+# Copia prisma schema, config e migrazioni
+COPY prisma ./prisma/
+COPY prisma.config.ts ./
+
+# Verifica che le migrazioni siano state copiate
+RUN ls -la prisma/migrations/ && ls -la prisma/migrations/20260216160000_init/
 
 # Genera il client Prisma
 RUN npx prisma generate
