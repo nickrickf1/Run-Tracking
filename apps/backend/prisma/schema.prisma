@@ -15,7 +15,6 @@ model User {
   role          String         @default("user")
   createdAt     DateTime       @default(now())
   runs          Run[]
-  role          String         @default("user") // "user" | "admin"
   stravaAccount StravaAccount?
 }
 
