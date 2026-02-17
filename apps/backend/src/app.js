@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const adminRoutes = require("./routes/admin.routes");
 
 const authRoutes = require('./routes/auth.routes');
 const runsRoutes = require('./routes/runs.routes');
@@ -55,5 +56,7 @@ app.use("/integrations/strava", stravaRoutes);
 
 // --- Error handler centralizzato (deve essere l'ultimo middleware) ---
 app.use(errorMiddleware);
+app.use("/admin", adminRoutes);
+
 
 module.exports = app;

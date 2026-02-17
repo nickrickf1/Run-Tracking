@@ -35,10 +35,16 @@ async function register(req, res, next) {
 
         const user = await prisma.user.create({
             data: { name, email, passwordHash },
-            select: { id: true, name: true, email: true, createdAt: true },
+            select: { id: true, name: true, email: true, role: true, createdAt: true },
+
         });
 
-        const token = signAccessToken({ userId: user.id, email: user.email });
+        const token = signAccessToken({
+            userId: user.id,
+            email: user.email,
+            role: user.role,       // <-- aggiungi questo
+        });
+
 
         return res.status(201).json({ user, token });
     } catch (err) {
@@ -65,8 +71,11 @@ async function login(req, res, next) {
             return res.status(401).json({ message: "Credenziali non valide" });
         }
 
-        const token = signAccessToken({ userId: user.id, email: user.email });
-
+        const token = signAccessToken({
+            userId: user.id,
+            email: user.email,
+            role: user.role,       // <-- aggiungi questo
+        });
         return res.json({
             user: { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt },
             token,
@@ -82,7 +91,8 @@ async function me(req, res, next) {
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { id: true, name: true, email: true, createdAt: true },
+            select: { id: true, name: true, email: true, role: true, createdAt: true },
+
         });
 
         if (!user) return res.status(404).json({ message: "Utente non trovato" });
