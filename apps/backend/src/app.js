@@ -10,6 +10,7 @@ const usersRoutes = require('./routes/users.routes');
 const { errorMiddleware } = require('./middlewares/error.middleware');
 const stravaRoutes = require("./integrations/strava/strava.routes");
 const adminRoutes = require("./routes/admin.routes");
+const goalsRoutes = require("./routes/goals.routes");
 
 const app = express();
 
@@ -44,6 +45,15 @@ const authLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// --- Rate limiting su admin ---
+const adminLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { message: "Troppe richieste admin, riprova tra qualche minuto" },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // --- Route ---
 app.get('/health', (req, res) => {
     res.json({ ok: true });
@@ -53,8 +63,9 @@ app.use("/auth", authLimiter, authRoutes);
 app.use("/runs", runsRoutes);
 app.use("/stats", statsRoutes);
 app.use("/users", usersRoutes);
+app.use("/goals", goalsRoutes);
 app.use("/integrations/strava", stravaRoutes);
-app.use("/admin", adminRoutes);
+app.use("/admin", adminLimiter, adminRoutes);
 
 // --- Error handler centralizzato (deve essere l'ultimo middleware) ---
 app.use(errorMiddleware);

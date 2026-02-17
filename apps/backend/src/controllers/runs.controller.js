@@ -60,7 +60,7 @@ async function listRuns(req, res, next) {
         const page = Math.max(parseInt(req.query.page || "1", 10), 1);
         const pageSize = Math.min(Math.max(parseInt(req.query.pageSize || "10", 10), 1), 50);
 
-        const where = { userId };
+        const where = { userId, deletedAt: null };
 
         if (type) where.type = String(type);
 
@@ -91,7 +91,7 @@ async function getRunById(req, res, next) {
         const userId = req.user.userId;
         const { id } = req.params;
 
-        const run = await prisma.run.findFirst({ where: { id, userId } });
+        const run = await prisma.run.findFirst({ where: { id, userId, deletedAt: null } });
         if (!run) return res.status(404).json({ message: "Corsa non trovata" });
 
         return res.json({ run });
@@ -110,7 +110,7 @@ async function updateRun(req, res, next) {
             return res.status(400).json({ message: "Errore di validazione", errors: parsed.error.errors });
         }
 
-        const existing = await prisma.run.findFirst({ where: { id, userId } });
+        const existing = await prisma.run.findFirst({ where: { id, userId, deletedAt: null } });
         if (!existing) return res.status(404).json({ message: "Corsa non trovata" });
 
         const data = parsed.data;
@@ -137,10 +137,10 @@ async function deleteRun(req, res, next) {
         const userId = req.user.userId;
         const { id } = req.params;
 
-        const existing = await prisma.run.findFirst({ where: { id, userId } });
+        const existing = await prisma.run.findFirst({ where: { id, userId, deletedAt: null } });
         if (!existing) return res.status(404).json({ message: "Corsa non trovata" });
 
-        await prisma.run.delete({ where: { id } });
+        await prisma.run.update({ where: { id }, data: { deletedAt: new Date() } });
         return res.status(204).end();
     } catch (err) {
         next(err);
@@ -152,7 +152,7 @@ async function exportCsv(req, res, next) {
         const userId = req.user.userId;
 
         const runs = await prisma.run.findMany({
-            where: { userId },
+            where: { userId, deletedAt: null },
             orderBy: { date: "desc" },
         });
 

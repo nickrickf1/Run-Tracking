@@ -7,6 +7,7 @@ import Dashboard from "../pages/Dashboard";
 import Runs from "../pages/Runs";
 import RunEditor from "../pages/RunEditor";
 import Profile from "../pages/Profile";
+import AdminDashboard from "../pages/AdminDashboard";
 import AdminUsers from "../pages/AdminUsers";
 import AdminUserDetail from "../pages/AdminUserDetail";
 
@@ -59,6 +60,14 @@ export default function AppRouter() {
                         <ProtectedRoute>
                             <RunEditor mode="edit" />
                         </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
+                            <AdminDashboard />
+                        </AdminRoute>
                     }
                 />
                 <Route

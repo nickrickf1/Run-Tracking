@@ -23,7 +23,9 @@ function NavLink({ to, children }) {
 
 export default function AppShell({ title, children, right }) {
     const { user, logout } = useAuth();
-    const { theme, toggleTheme } = useTheme();
+    const { mode, cycleTheme } = useTheme();
+    const themeIcon = mode === "dark" ? "\u2600\uFE0F" : mode === "auto" ? "\uD83D\uDCBB" : "\uD83C\uDF19";
+    const themeLabel = mode === "dark" ? "Tema: scuro" : mode === "auto" ? "Tema: auto" : "Tema: chiaro";
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
@@ -35,7 +37,7 @@ export default function AppShell({ title, children, right }) {
                             <NavLink to="/dashboard">Dashboard</NavLink>
                             <NavLink to="/runs">Corse</NavLink>
                             <NavLink to="/profile">Profilo</NavLink>
-                            {user?.role === "admin" && <NavLink to="/admin/users">Admin</NavLink>}
+                            {user?.role === "admin" && <NavLink to="/admin">Admin</NavLink>}
                         </div>
                     </div>
 
@@ -45,11 +47,12 @@ export default function AppShell({ title, children, right }) {
                             {user?.name}
                         </div>
                         <button
-                            onClick={toggleTheme}
-                            aria-label={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
+                            onClick={cycleTheme}
+                            aria-label={themeLabel}
+                            title={themeLabel}
                             className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                         >
-                            {theme === "dark" ? "☀️" : "🌙"}
+                            {themeIcon}
                         </button>
                         <Button
                             className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
@@ -64,7 +67,7 @@ export default function AppShell({ title, children, right }) {
                     <NavLink to="/dashboard">Dashboard</NavLink>
                     <NavLink to="/runs">Corse</NavLink>
                     <NavLink to="/profile">Profilo</NavLink>
-                    {user?.role === "admin" && <NavLink to="/admin/users">Admin</NavLink>}
+                    {user?.role === "admin" && <NavLink to="/admin">Admin</NavLink>}
                 </div>
             </div>
 

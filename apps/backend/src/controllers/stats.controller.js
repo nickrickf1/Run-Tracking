@@ -9,7 +9,7 @@ async function getSummary(req, res, next) {
         const fromDate = toDate(from);
         const toDateVal = toDate(to);
 
-        const where = { userId };
+        const where = { userId, deletedAt: null };
         if (fromDate || toDateVal) {
             where.date = {};
             if (fromDate) where.date.gte = fromDate;
@@ -58,6 +58,7 @@ async function getWeekly(req, res, next) {
         const runs = await prisma.run.findMany({
             where: {
                 userId,
+                deletedAt: null,
                 date: { gte: from, lt: to },
             },
             select: { date: true, distanceKm: true, durationSec: true },
@@ -98,4 +99,79 @@ async function getWeekly(req, res, next) {
     }
 }
 
-module.exports = { getSummary, getWeekly };
+// PB distances in km with a small tolerance (e.g. 5K = runs >= 4.9 km)
+const PB_DISTANCES = [
+    { label: "5K", minKm: 4.9, maxKm: 5.5 },
+    { label: "10K", minKm: 9.8, maxKm: 10.5 },
+    { label: "Mezza maratona", minKm: 21.0, maxKm: 21.5 },
+    { label: "Maratona", minKm: 42.0, maxKm: 42.5 },
+];
+
+async function getPersonalBests(req, res, next) {
+    try {
+        const userId = req.user.userId;
+
+        const runs = await prisma.run.findMany({
+            where: { userId, deletedAt: null },
+            select: { id: true, date: true, distanceKm: true, durationSec: true },
+            orderBy: { date: "desc" },
+        });
+
+        const pbs = [];
+        for (const dist of PB_DISTANCES) {
+            let best = null;
+            for (const r of runs) {
+                const km = Number(r.distanceKm);
+                if (km < dist.minKm || km > dist.maxKm) continue;
+                if (!best || r.durationSec < best.durationSec) {
+                    best = r;
+                }
+            }
+            pbs.push({
+                label: dist.label,
+                run: best
+                    ? {
+                        id: best.id,
+                        date: best.date,
+                        distanceKm: Number(best.distanceKm),
+                        durationSec: best.durationSec,
+                    }
+                    : null,
+            });
+        }
+
+        // Best pace (on runs >= 3 km)
+        let bestPaceRun = null;
+        for (const r of runs) {
+            const km = Number(r.distanceKm);
+            if (km < 3) continue;
+            const pace = r.durationSec / km;
+            if (!bestPaceRun || pace < bestPaceRun._pace) {
+                bestPaceRun = { ...r, _pace: pace };
+            }
+        }
+
+        // Longest run
+        let longestRun = null;
+        for (const r of runs) {
+            const km = Number(r.distanceKm);
+            if (!longestRun || km > Number(longestRun.distanceKm)) {
+                longestRun = r;
+            }
+        }
+
+        return res.json({
+            distances: pbs,
+            bestPace: bestPaceRun
+                ? { id: bestPaceRun.id, date: bestPaceRun.date, distanceKm: Number(bestPaceRun.distanceKm), durationSec: bestPaceRun.durationSec }
+                : null,
+            longestRun: longestRun
+                ? { id: longestRun.id, date: longestRun.date, distanceKm: Number(longestRun.distanceKm), durationSec: longestRun.durationSec }
+                : null,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { getSummary, getWeekly, getPersonalBests };

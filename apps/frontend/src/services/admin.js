@@ -9,3 +9,7 @@ export async function getUsers(token, { page = 1, search = "" } = {}) {
 export async function getUserDetail(token, userId) {
     return apiFetch(`/admin/users/${userId}`, { token });
 }
+
+export async function getAdminDashboard(token) {
+    return apiFetch("/admin/dashboard", { token });
+}

@@ -1,9 +1,11 @@
+const logger = require("../lib/logger");
+
 /**
  * Middleware centralizzato per la gestione degli errori.
  * Cattura tutti gli errori non gestiti nei controller.
  */
 function errorMiddleware(err, req, res, _next) {
-    console.error(`[${req.method} ${req.originalUrl}]`, err);
+    logger.error({ err, method: req.method, url: req.originalUrl }, "Unhandled error");
 
     // Errori di validazione Zod passati manualmente
     if (err.status) {
