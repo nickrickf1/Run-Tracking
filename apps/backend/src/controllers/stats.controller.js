@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const { toDate, startOfWeekMonday, addDays, formatYMD } = require('../utils/date');
-
-const prisma = new PrismaClient();
 
 async function getSummary(req, res, next) {
     try {

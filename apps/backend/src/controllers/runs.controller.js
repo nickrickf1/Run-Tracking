@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const { z } = require('zod');
 const { toDate } = require('../utils/date');
-
-const prisma = new PrismaClient();
 
 const dateSchema = z.union([
     z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "La data deve essere in formato YYYY-MM-DD"),

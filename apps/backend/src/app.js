@@ -9,6 +9,7 @@ const statsRoutes = require('./routes/stats.routes');
 const usersRoutes = require('./routes/users.routes');
 const { errorMiddleware } = require('./middlewares/error.middleware');
 const stravaRoutes = require("./integrations/strava/strava.routes");
+const adminRoutes = require("./routes/admin.routes");
 
 const app = express();
 
@@ -18,7 +19,8 @@ app.use(helmet());
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
-];
+    process.env.FRONTEND_URL,
+].filter(Boolean);
 
 app.use(
     cors({
@@ -52,6 +54,7 @@ app.use("/runs", runsRoutes);
 app.use("/stats", statsRoutes);
 app.use("/users", usersRoutes);
 app.use("/integrations/strava", stravaRoutes);
+app.use("/admin", adminRoutes);
 
 // --- Error handler centralizzato (deve essere l'ultimo middleware) ---
 app.use(errorMiddleware);

@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("../../lib/prisma");
 const {
     exchangeCodeForToken,
     refreshAccessToken,
@@ -6,8 +6,6 @@ const {
     mapStravaActivityToRun,
 } = require("./strava.service");
 const { signAccessToken, verifyAccessToken } = require("../../services/token.services");
-
-const prisma = new PrismaClient();
 
 const STRAVA_AUTH_URL = "https://www.strava.com/oauth/authorize";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";

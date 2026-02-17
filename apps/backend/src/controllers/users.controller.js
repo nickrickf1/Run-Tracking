@@ -1,8 +1,6 @@
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("../lib/prisma");
 const bcrypt = require("bcrypt");
 const { z } = require("zod");
-
-const prisma = new PrismaClient();
 const BCRYPT_ROUNDS = 12;
 
 const profileSchema = z.object({
