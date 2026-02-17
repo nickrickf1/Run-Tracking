@@ -25,3 +25,18 @@ export function updateRun(token, id, body) {
 export function deleteRun(token, id) {
     return apiFetch(`/runs/${id}`, { method: "DELETE", token });
 }
+
+export async function exportRunsCsv(token) {
+    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+    const res = await fetch(`${BASE_URL}/runs/export/csv`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Errore durante l'esportazione");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "corse.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+}

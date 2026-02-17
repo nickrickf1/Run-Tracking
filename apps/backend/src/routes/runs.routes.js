@@ -6,13 +6,15 @@ const {
     listRuns,
     getRunById,
     updateRun,
-    deleteRun
+    deleteRun,
+    exportCsv,
 } = require('../controllers/runs.controller');
 
 router.use(authMiddleware)
 
 router.post("/", createRun)
 router.get("/", listRuns)
+router.get("/export/csv", exportCsv)
 router.get("/:id", getRunById)
 router.patch("/:id", updateRun)
 router.delete("/:id", deleteRun)

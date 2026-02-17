@@ -91,4 +91,23 @@ async function me(req, res, next) {
     }
 }
 
-module.exports = { register, login, me };
+async function refresh(req, res, next) {
+    try {
+        const userId = req.user.userId;
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true, name: true, email: true, role: true, createdAt: true },
+        });
+
+        if (!user) return res.status(404).json({ message: "Utente non trovato" });
+
+        const token = signAccessToken({ userId: user.id, email: user.email, role: user.role });
+
+        return res.json({ user, token });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { register, login, me, refresh };

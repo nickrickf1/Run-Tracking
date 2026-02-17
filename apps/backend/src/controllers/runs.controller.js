@@ -147,4 +147,31 @@ async function deleteRun(req, res, next) {
     }
 }
 
-module.exports = { createRun, listRuns, getRunById, updateRun, deleteRun };
+async function exportCsv(req, res, next) {
+    try {
+        const userId = req.user.userId;
+
+        const runs = await prisma.run.findMany({
+            where: { userId },
+            orderBy: { date: "desc" },
+        });
+
+        const header = "Data,Distanza (km),Durata (sec),Passo (sec/km),Tipo,RPE,Note";
+        const rows = runs.map((r) => {
+            const km = Number(r.distanceKm);
+            const pace = km > 0 ? Math.round(r.durationSec / km) : 0;
+            const notes = (r.notes || "").replace(/"/g, '""');
+            return `${r.date.toISOString().slice(0, 10)},${km.toFixed(2)},${r.durationSec},${pace},${r.type},${r.rpe || ""},${notes ? `"${notes}"` : ""}`;
+        });
+
+        const csv = [header, ...rows].join("\n");
+
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader("Content-Disposition", "attachment; filename=corse.csv");
+        return res.send(csv);
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { createRun, listRuns, getRunById, updateRun, deleteRun, exportCsv };

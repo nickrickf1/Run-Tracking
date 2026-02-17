@@ -6,6 +6,7 @@ import Alert from "../components/ui/Alert";
 import Input from "../components/ui/Input";
 import { useAuth } from "../context/AuthContext";
 import { deleteRun, listRuns } from "../services/runs";
+import { exportRunsCsv } from "../services/runs";
 import { formatDate, formatPace } from "../utils/format";
 
 const TYPES = ["", "lento", "tempo", "variato", "lungo", "gara", "forza"];
@@ -92,9 +93,17 @@ export default function Runs() {
         <AppShell
             title="Corse"
             right={
-                <Link to="/runs/new">
-                    <Button>+ Nuova corsa</Button>
-                </Link>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => exportRunsCsv(token)}
+                        className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
+                    >
+                        Esporta CSV
+                    </Button>
+                    <Link to="/runs/new">
+                        <Button>+ Nuova corsa</Button>
+                    </Link>
+                </div>
             }
         >
             {err && <Alert>{err}</Alert>}

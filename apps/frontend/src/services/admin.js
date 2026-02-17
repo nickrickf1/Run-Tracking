@@ -1,7 +1,9 @@
 import { apiFetch } from "./api";
 
-export async function getUsers(token) {
-    return apiFetch("/admin/users", { token });
+export async function getUsers(token, { page = 1, search = "" } = {}) {
+    const params = new URLSearchParams({ page, pageSize: 20 });
+    if (search) params.set("search", search);
+    return apiFetch(`/admin/users?${params}`, { token });
 }
 
 export async function getUserDetail(token, userId) {

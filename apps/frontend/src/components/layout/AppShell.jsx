@@ -5,7 +5,7 @@ import { useTheme } from "../../context/ThemeContext";
 
 function NavLink({ to, children }) {
     const { pathname } = useLocation();
-    const active = pathname === to;
+    const active = pathname === to || (to !== "/dashboard" && pathname.startsWith(to));
     return (
         <Link
             to={to}
