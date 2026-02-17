@@ -1,11 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Runs from "../pages/Runs";
 import RunEditor from "../pages/RunEditor";
 import Profile from "../pages/Profile";
+import AdminUsers from "../pages/AdminUsers";
+import AdminUserDetail from "../pages/AdminUserDetail";
 
 export default function AppRouter() {
     return (
@@ -56,6 +59,22 @@ export default function AppRouter() {
                         <ProtectedRoute>
                             <RunEditor mode="edit" />
                         </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/users"
+                    element={
+                        <AdminRoute>
+                            <AdminUsers />
+                        </AdminRoute>
+                    }
+                />
+                <Route
+                    path="/admin/users/:id"
+                    element={
+                        <AdminRoute>
+                            <AdminUserDetail />
+                        </AdminRoute>
                     }
                 />
                 <Route path="*" element={<div className="p-6">Not found</div>} />
