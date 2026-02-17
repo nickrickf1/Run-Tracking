@@ -35,6 +35,7 @@ export default function AppShell({ title, children, right }) {
                             <NavLink to="/dashboard">Dashboard</NavLink>
                             <NavLink to="/runs">Corse</NavLink>
                             <NavLink to="/profile">Profilo</NavLink>
+                            {user?.role === "admin" && <NavLink to="/admin/users">Admin</NavLink>}
                         </div>
                     </div>
 
@@ -63,6 +64,7 @@ export default function AppShell({ title, children, right }) {
                     <NavLink to="/dashboard">Dashboard</NavLink>
                     <NavLink to="/runs">Corse</NavLink>
                     <NavLink to="/profile">Profilo</NavLink>
+                    {user?.role === "admin" && <NavLink to="/admin/users">Admin</NavLink>}
                 </div>
             </div>
 
