@@ -6,6 +6,8 @@ import StatCard from "../components/ui/StatCard";
 import WeeklyChart from "../components/charts/WeeklyChart";
 import Alert from "../components/ui/Alert";
 import { CardSkeleton } from "../components/ui/Skeleton";
+import WeeklyGoalWidget from "../components/ui/WeeklyGoalWidget";
+import PersonalBests from "../components/ui/PersonalBests";
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -33,6 +35,14 @@ export default function Dashboard() {
             ) : (
                 <p className="text-sm text-slate-400">Nessuna statistica disponibile.</p>
             )}
+
+            <div className="mt-6">
+                <WeeklyGoalWidget />
+            </div>
+
+            <div className="mt-6">
+                <PersonalBests />
+            </div>
 
             {weekly?.series && <div className="mt-6"><WeeklyChart data={weekly.series} /></div>}
         </AppShell>

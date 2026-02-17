@@ -26,6 +26,20 @@ export function deleteRun(token, id) {
     return apiFetch(`/runs/${id}`, { method: "DELETE", token });
 }
 
+export async function importGpx(token, file) {
+    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${BASE_URL}/runs/import/gpx`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Errore durante l'importazione");
+    return data;
+}
+
 export async function exportRunsCsv(token) {
     const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
     const res = await fetch(`${BASE_URL}/runs/export/csv`, {

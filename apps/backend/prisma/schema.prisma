@@ -16,19 +16,30 @@ model User {
   createdAt     DateTime       @default(now())
   runs          Run[]
   stravaAccount StravaAccount?
+  weeklyGoal    WeeklyGoal?
 }
 
 model Run {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
   date        DateTime
   distanceKm  Decimal
   durationSec Int
   type        String
   rpe         Int?
   notes       String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+}
+
+model WeeklyGoal {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  targetKm   Decimal
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model StravaAccount {

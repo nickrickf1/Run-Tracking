@@ -5,6 +5,7 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import Alert from "../components/ui/Alert";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { createRun, getRun, updateRun } from "../services/runs";
 import { formatPace, formatDuration, toIntOrZero, clamp } from "../utils/format";
 
@@ -12,6 +13,7 @@ const TYPES = ["lento", "tempo", "variato", "lungo", "gara", "forza"];
 
 export default function RunEditor({ mode }) {
     const { token } = useAuth();
+    const { addToast } = useToast();
     const nav = useNavigate();
     const { id } = useParams();
 
@@ -92,8 +94,10 @@ export default function RunEditor({ mode }) {
 
             if (mode === "edit") {
                 await updateRun(token, id, payload);
+                addToast("Corsa aggiornata con successo");
             } else {
                 await createRun(token, payload);
+                addToast("Corsa creata con successo");
             }
 
             nav("/runs");

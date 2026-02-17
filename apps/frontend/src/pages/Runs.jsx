@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import AppShell from "../components/layout/AppShell";
 import Button from "../components/ui/Button";
 import Alert from "../components/ui/Alert";
 import Input from "../components/ui/Input";
 import { useAuth } from "../context/AuthContext";
-import { deleteRun, listRuns } from "../services/runs";
+import { useToast } from "../context/ToastContext";
+import { deleteRun, listRuns, importGpx } from "../services/runs";
 import { exportRunsCsv } from "../services/runs";
 import { formatDate, formatPace } from "../utils/format";
 
@@ -13,8 +14,11 @@ const TYPES = ["", "lento", "tempo", "variato", "lungo", "gara", "forza"];
 
 export default function Runs() {
     const { token } = useAuth();
+    const { addToast } = useToast();
+    const fileInputRef = useRef(null);
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(true);
+    const [importing, setImporting] = useState(false);
 
     // filtri
     const [from, setFrom] = useState("");
@@ -75,11 +79,29 @@ export default function Runs() {
         if (!confirm("Eliminare questa corsa?")) return;
         try {
             await deleteRun(token, id);
+            addToast("Corsa eliminata con successo");
             const newPage = Math.min(page, Math.max(1, Math.ceil((data.total - 1) / pageSize)));
             setPage(newPage);
             await load(newPage);
         } catch (e) {
-            setErr(e.message);
+            addToast(e.message, { variant: "error" });
+        }
+    }
+
+    async function onImportGpx(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setImporting(true);
+        try {
+            const res = await importGpx(token, file);
+            addToast(res.message);
+            setPage(1);
+            await load(1);
+        } catch (err) {
+            addToast(err.message, { variant: "error" });
+        } finally {
+            setImporting(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
         }
     }
 
@@ -94,6 +116,20 @@ export default function Runs() {
             title="Corse"
             right={
                 <div className="flex gap-2">
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".gpx"
+                        className="hidden"
+                        onChange={onImportGpx}
+                    />
+                    <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={importing}
+                        className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
+                    >
+                        {importing ? "Importando..." : "Importa GPX"}
+                    </Button>
                     <Button
                         onClick={() => exportRunsCsv(token)}
                         className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
