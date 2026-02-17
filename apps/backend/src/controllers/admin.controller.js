@@ -1,7 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../lib/prisma");
 
-// Lista tutti gli utenti
 async function getUsers(req, res, next) {
     try {
         const users = await prisma.user.findMany({
@@ -22,7 +20,6 @@ async function getUsers(req, res, next) {
     }
 }
 
-// Dettaglio singolo utente con le sue corse
 async function getUserDetail(req, res, next) {
     try {
         const user = await prisma.user.findUnique({
