@@ -5,6 +5,7 @@ import AppShell from "../components/layout/AppShell";
 import StatCard from "../components/ui/StatCard";
 import WeeklyChart from "../components/charts/WeeklyChart";
 import Alert from "../components/ui/Alert";
+import { CardSkeleton } from "../components/ui/Skeleton";
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -19,7 +20,9 @@ export default function Dashboard() {
             {error && <Alert>{error}</Alert>}
 
             {statsLoading ? (
-                <p className="text-sm text-slate-400">Caricamento statistiche...</p>
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    {[...Array(4)].map((_, i) => <CardSkeleton key={i} />)}
+                </div>
             ) : summary ? (
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
                     <StatCard label="Corse totali" value={summary.totalRuns} />

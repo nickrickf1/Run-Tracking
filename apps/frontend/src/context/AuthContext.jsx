@@ -34,6 +34,15 @@ export function AuthProvider({ children }) {
         })();
     }, [token]);
 
+    // Ascolta token rinnovato da apiFetch
+    useEffect(() => {
+        function onTokenRefreshed(e) {
+            setToken(e.detail);
+        }
+        window.addEventListener("token-refreshed", onTokenRefreshed);
+        return () => window.removeEventListener("token-refreshed", onTokenRefreshed);
+    }, []);
+
     async function login(email, password) {
         const data = await apiFetch("/auth/login", {
             method: "POST",
