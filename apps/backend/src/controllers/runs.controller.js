@@ -56,13 +56,18 @@ async function listRuns(req, res, next) {
     try {
         const userId = req.user.userId;
 
-        const { from, to, type } = req.query;
+        const { from, to, type, search } = req.query;
         const page = Math.max(parseInt(req.query.page || "1", 10), 1);
         const pageSize = Math.min(Math.max(parseInt(req.query.pageSize || "10", 10), 1), 50);
 
         const where = { userId, deletedAt: null };
 
         if (type) where.type = String(type);
+
+        if (search) {
+            const q = String(search).trim();
+            if (q) where.notes = { contains: q, mode: "insensitive" };
+        }
 
         if (from || to) {
             where.date = {};
@@ -174,4 +179,64 @@ async function exportCsv(req, res, next) {
     }
 }
 
-module.exports = { createRun, listRuns, getRunById, updateRun, deleteRun, exportCsv };
+async function uploadAudio(req, res, next) {
+    try {
+        const userId = req.user.userId;
+        const { id } = req.params;
+
+        const existing = await prisma.run.findFirst({ where: { id, userId, deletedAt: null } });
+        if (!existing) return res.status(404).json({ message: "Corsa non trovata" });
+
+        if (!req.file) {
+            return res.status(400).json({ message: "Nessun file audio caricato" });
+        }
+
+        const fs = require("fs");
+        const path = require("path");
+        const uploadsDir = path.join(__dirname, "..", "..", "uploads", "audio");
+        fs.mkdirSync(uploadsDir, { recursive: true });
+
+        const ext = req.file.originalname?.split(".").pop() || "webm";
+        const filename = `${id}-${Date.now()}.${ext}`;
+        const filepath = path.join(uploadsDir, filename);
+        fs.writeFileSync(filepath, req.file.buffer);
+
+        const audioUrl = `/uploads/audio/${filename}`;
+        const updated = await prisma.run.update({
+            where: { id },
+            data: { audioUrl },
+        });
+
+        return res.json({ run: updated });
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function deleteAudio(req, res, next) {
+    try {
+        const userId = req.user.userId;
+        const { id } = req.params;
+
+        const existing = await prisma.run.findFirst({ where: { id, userId, deletedAt: null } });
+        if (!existing) return res.status(404).json({ message: "Corsa non trovata" });
+
+        if (existing.audioUrl) {
+            const fs = require("fs");
+            const path = require("path");
+            const filepath = path.join(__dirname, "..", "..", existing.audioUrl);
+            try { fs.unlinkSync(filepath); } catch { /* file may not exist */ }
+        }
+
+        const updated = await prisma.run.update({
+            where: { id },
+            data: { audioUrl: null },
+        });
+
+        return res.json({ run: updated });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { createRun, listRuns, getRunById, updateRun, deleteRun, exportCsv, uploadAudio, deleteAudio };

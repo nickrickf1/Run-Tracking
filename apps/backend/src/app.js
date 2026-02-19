@@ -36,6 +36,10 @@ app.use(
 
 app.use(express.json({ limit: "1mb" }));
 
+// Serve uploaded audio files
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+
 // --- Rate limiting su auth ---
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minuti

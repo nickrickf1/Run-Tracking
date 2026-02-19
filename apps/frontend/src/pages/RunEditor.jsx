@@ -8,6 +8,9 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { createRun, getRun, updateRun } from "../services/runs";
 import { formatPace, formatDuration, toIntOrZero, clamp } from "../utils/format";
+import RunMap from "../components/ui/RunMap";
+import ShareButton, { useShareCard } from "../components/ui/ShareCard";
+import VoiceRecorder from "../components/ui/VoiceRecorder";
 
 const TYPES = ["lento", "tempo", "variato", "lungo", "gara", "forza"];
 
@@ -20,6 +23,10 @@ export default function RunEditor({ mode }) {
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(mode === "edit");
     const [saving, setSaving] = useState(false);
+    const [gpxPoints, setGpxPoints] = useState(null);
+    const { shareRun } = useShareCard();
+    const [runData, setRunData] = useState(null);
+    const [audioUrl, setAudioUrl] = useState(null);
 
     const [form, setForm] = useState({
         date: "",          // YYYY-MM-DD
@@ -57,6 +64,9 @@ export default function RunEditor({ mode }) {
                     rpe: r.rpe == null ? "" : String(r.rpe),
                     notes: r.notes || "",
                 });
+                if (r.gpxData && Array.isArray(r.gpxData)) setGpxPoints(r.gpxData);
+                if (r.audioUrl) setAudioUrl(r.audioUrl);
+                setRunData(r);
             } catch (e) {
                 if (e.name === "AbortError") return;
                 setErr(e.message);
@@ -223,6 +233,22 @@ export default function RunEditor({ mode }) {
                         />
                     </div>
 
+                    {mode === "edit" && id && (
+                        <VoiceRecorder
+                            token={token}
+                            runId={id}
+                            audioUrl={audioUrl}
+                            onAudioChange={setAudioUrl}
+                        />
+                    )}
+
+                    {gpxPoints && (
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Percorso</label>
+                            <RunMap points={gpxPoints} />
+                        </div>
+                    )}
+
                     <div className="flex gap-2">
                         <Button disabled={saving}>{saving ? "Salvataggio..." : "Salva"}</Button>
                         <Link to="/runs">
@@ -230,6 +256,9 @@ export default function RunEditor({ mode }) {
                                 Annulla
                             </Button>
                         </Link>
+                        {mode === "edit" && runData && (
+                            <ShareButton onClick={() => shareRun(runData)} className="ml-auto" />
+                        )}
                     </div>
                 </form>
             )}

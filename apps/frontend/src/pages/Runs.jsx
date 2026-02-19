@@ -8,6 +8,8 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { deleteRun, listRuns, importGpx } from "../services/runs";
 import { exportRunsCsv } from "../services/runs";
+import { generateMonthlyPdf } from "../services/pdf";
+import { apiFetch } from "../services/api";
 import { formatDate, formatPace } from "../utils/format";
 
 const TYPES = ["", "lento", "tempo", "variato", "lungo", "gara", "forza"];
@@ -24,6 +26,7 @@ export default function Runs() {
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
     const [type, setType] = useState("");
+    const [search, setSearch] = useState("");
 
     // paginazione
     const [page, setPage] = useState(1);
@@ -35,7 +38,7 @@ export default function Runs() {
         return Math.max(1, Math.ceil((data.total || 0) / pageSize));
     }, [data.total]);
 
-    async function load(p = page, filters = { from, to, type }) {
+    async function load(p = page, filters = { from, to, type, search }) {
         setErr("");
         setLoading(true);
         try {
@@ -45,6 +48,7 @@ export default function Runs() {
                 from: filters.from || undefined,
                 to: filters.to || undefined,
                 type: filters.type || undefined,
+                search: filters.search || undefined,
             });
             setData(res);
         } catch (e) {
@@ -71,8 +75,9 @@ export default function Runs() {
         setFrom("");
         setTo("");
         setType("");
+        setSearch("");
         setPage(1);
-        await load(1, { from: "", to: "", type: "" });
+        await load(1, { from: "", to: "", type: "", search: "" });
     }
 
     async function onDelete(id) {
@@ -105,6 +110,30 @@ export default function Runs() {
         }
     }
 
+    async function onExportPdf() {
+        try {
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+            const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+            const monthLabel = now.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
+
+            const [runsRes, statsRes] = await Promise.all([
+                listRuns(token, { page: 1, pageSize: 50, from: monthStart, to: monthEnd }),
+                apiFetch(`/stats/summary?from=${monthStart}&to=${monthEnd}`, { token }),
+            ]);
+
+            if (runsRes.runs.length === 0) {
+                addToast("Nessuna corsa nel mese corrente", { variant: "info" });
+                return;
+            }
+
+            generateMonthlyPdf(runsRes.runs, statsRes, monthLabel);
+            addToast("PDF generato con successo");
+        } catch (e) {
+            addToast(e.message, { variant: "error" });
+        }
+    }
+
     async function goToPage(p) {
         const next = Math.min(Math.max(1, p), totalPages);
         setPage(next);
@@ -134,7 +163,13 @@ export default function Runs() {
                         onClick={() => exportRunsCsv(token)}
                         className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
                     >
-                        Esporta CSV
+                        CSV
+                    </Button>
+                    <Button
+                        onClick={onExportPdf}
+                        className="bg-white !text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:!text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700"
+                    >
+                        PDF
                     </Button>
                     <Link to="/runs/new">
                         <Button>+ Nuova corsa</Button>
@@ -147,8 +182,18 @@ export default function Runs() {
             {/* Filtri */}
             <form
                 onSubmit={onApplyFilters}
-                className="mt-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 grid gap-4 md:grid-cols-4 dark:bg-slate-900 dark:ring-slate-800 transition-colors"
+                className="mt-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800 transition-colors space-y-4"
             >
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Cerca nelle note</label>
+                    <Input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Es. dolore ginocchio, intervalli..."
+                    />
+                </div>
+                <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Da</label>
                     <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
@@ -183,6 +228,7 @@ export default function Runs() {
                     >
                         Reset
                     </Button>
+                </div>
                 </div>
             </form>
 

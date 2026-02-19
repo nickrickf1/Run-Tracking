@@ -77,11 +77,16 @@ function parseGpx(buffer) {
         const date = firstTime || new Date();
         const name = trk.name || null;
 
+        // Sample points for map display (max ~200 points)
+        const step = Math.max(1, Math.floor(points.length / 200));
+        const sampled = points.filter((_, i) => i % step === 0).map((p) => [p.lat, p.lon]);
+
         results.push({
             date,
             distanceKm: Math.round(distanceKm * 100) / 100,
             durationSec,
             name,
+            gpxData: sampled.length > 1 ? sampled : null,
         });
     }
 
@@ -114,6 +119,7 @@ async function importGpx(req, res, next) {
                     durationSec: track.durationSec,
                     type: "lento",
                     notes: track.name ? `Importato da GPX: ${track.name}` : "Importato da GPX",
+                    gpxData: track.gpxData || undefined,
                 },
             });
             created.push(run);
