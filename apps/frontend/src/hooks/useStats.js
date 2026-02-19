@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -8,6 +8,9 @@ export function useStats() {
     const [weekly, setWeekly] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [tick, setTick] = useState(0);
+
+    const refresh = useCallback(() => setTick((t) => t + 1), []);
 
     useEffect(() => {
         if (!token) return;
@@ -15,6 +18,7 @@ export function useStats() {
         const controller = new AbortController();
 
         async function load() {
+            setLoading(true);
             try {
                 const [s, w] = await Promise.all([
                     apiFetch("/stats/summary", { token, signal: controller.signal }),
@@ -22,6 +26,7 @@ export function useStats() {
                 ]);
                 setSummary(s);
                 setWeekly(w);
+                setError(null);
             } catch (err) {
                 if (err.name === "AbortError") return;
                 console.error("useStats error:", err);
@@ -34,7 +39,16 @@ export function useStats() {
         load();
 
         return () => controller.abort();
-    }, [token]);
+    }, [token, tick]);
 
-    return { summary, weekly, loading, error };
+    // Refresh quando la pagina torna visibile
+    useEffect(() => {
+        function onVisible() {
+            if (document.visibilityState === "visible") refresh();
+        }
+        document.addEventListener("visibilitychange", onVisible);
+        return () => document.removeEventListener("visibilitychange", onVisible);
+    }, [refresh]);
+
+    return { summary, weekly, loading, error, refresh };
 }

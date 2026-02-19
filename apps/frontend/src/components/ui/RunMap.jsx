@@ -1,13 +1,27 @@
-import { useEffect, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useEffect, useRef, useState } from "react";
 
 export default function RunMap({ points }) {
     const mapRef = useRef(null);
     const containerRef = useRef(null);
+    const [ready, setReady] = useState(false);
+    const leafletRef = useRef(null);
 
     useEffect(() => {
-        if (!points || points.length < 2 || !containerRef.current) return;
+        let cancelled = false;
+        (async () => {
+            const L = await import("leaflet");
+            await import("leaflet/dist/leaflet.css");
+            if (!cancelled) {
+                leafletRef.current = L.default || L;
+                setReady(true);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, []);
+
+    useEffect(() => {
+        const L = leafletRef.current;
+        if (!ready || !L || !points || points.length < 2 || !containerRef.current) return;
 
         if (mapRef.current) {
             mapRef.current.remove();
@@ -43,7 +57,7 @@ export default function RunMap({ points }) {
                 mapRef.current = null;
             }
         };
-    }, [points]);
+    }, [ready, points]);
 
     if (!points || points.length < 2) return null;
 

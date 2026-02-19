@@ -127,7 +127,7 @@ export default function Runs() {
                 return;
             }
 
-            generateMonthlyPdf(runsRes.runs, statsRes, monthLabel);
+            await generateMonthlyPdf(runsRes.runs, statsRes, monthLabel);
             addToast("PDF generato con successo");
         } catch (e) {
             addToast(e.message, { variant: "error" });
