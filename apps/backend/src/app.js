@@ -15,7 +15,9 @@ const goalsRoutes = require("./routes/goals.routes");
 const app = express();
 
 // --- Sicurezza ---
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
 const allowedOrigins = [
     "http://localhost:5173",

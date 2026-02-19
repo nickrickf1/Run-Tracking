@@ -43,7 +43,7 @@ export default function VoiceRecorder({ token, runId, audioUrl, apiBase, onAudio
             const form = new FormData();
             form.append("audio", blob, "voice-note.webm");
 
-            const base = apiBase || import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const base = apiBase || import.meta.env.VITE_API_URL || "http://localhost:4000";
             const res = await fetch(`${base}/runs/${runId}/audio`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
@@ -63,7 +63,7 @@ export default function VoiceRecorder({ token, runId, audioUrl, apiBase, onAudio
     async function deleteAudio() {
         setUploading(true);
         try {
-            const base = apiBase || import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const base = apiBase || import.meta.env.VITE_API_URL || "http://localhost:4000";
             const res = await fetch(`${base}/runs/${runId}/audio`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
@@ -88,7 +88,7 @@ export default function VoiceRecorder({ token, runId, audioUrl, apiBase, onAudio
                 <div className="flex items-center gap-2">
                     <audio
                         controls
-                        src={`${apiBase || import.meta.env.VITE_API_URL || "http://localhost:3000"}${audioUrl}`}
+                        src={`${apiBase || import.meta.env.VITE_API_URL || "http://localhost:4000"}${audioUrl}`}
                         className="h-8 flex-1"
                     />
                     <button
