@@ -1,7 +1,7 @@
-import { jsPDF } from "jspdf";
 import { formatPace, formatDuration, formatDate } from "../utils/format";
 
-export function generateMonthlyPdf(runs, summary, monthLabel) {
+export async function generateMonthlyPdf(runs, summary, monthLabel) {
+    const { jsPDF } = await import("jspdf");
     const doc = new jsPDF();
 
     // Title
