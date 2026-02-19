@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { apiFetch } from "../../services/api";
 import { formatPace, formatDuration, formatDate } from "../../utils/format";
+import ShareButton, { useShareCard } from "./ShareCard";
 
 export default function PersonalBests() {
     const { token } = useAuth();
     const [data, setData] = useState(null);
+    const { sharePB } = useShareCard();
 
     useEffect(() => {
         (async () => {
@@ -40,6 +42,7 @@ export default function PersonalBests() {
                             time={formatDuration(d.run.durationSec, { showSeconds: true })}
                             pace={formatPace(d.run.distanceKm, d.run.durationSec)}
                             date={formatDate(d.run.date)}
+                            onShare={() => sharePB(d.label, d.run)}
                         />
                     ) : null
                 )}
@@ -50,6 +53,7 @@ export default function PersonalBests() {
                         time={formatPace(bestPace.distanceKm, bestPace.durationSec)}
                         pace={`${bestPace.distanceKm.toFixed(1)} km`}
                         date={formatDate(bestPace.date)}
+                        onShare={() => sharePB("Miglior passo", bestPace)}
                     />
                 )}
 
@@ -59,6 +63,7 @@ export default function PersonalBests() {
                         time={`${longestRun.distanceKm.toFixed(1)} km`}
                         pace={formatDuration(longestRun.durationSec, { showSeconds: true })}
                         date={formatDate(longestRun.date)}
+                        onShare={() => sharePB("Corsa piu lunga", longestRun)}
                     />
                 )}
             </div>
@@ -66,10 +71,13 @@ export default function PersonalBests() {
     );
 }
 
-function PBCard({ label, time, pace, date }) {
+function PBCard({ label, time, pace, date, onShare }) {
     return (
         <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-            <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
+            <div className="flex items-start justify-between">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
+                {onShare && <ShareButton onClick={onShare} />}
+            </div>
             <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{time}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
                 {pace} &middot; {date}

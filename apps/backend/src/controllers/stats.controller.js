@@ -174,4 +174,103 @@ async function getPersonalBests(req, res, next) {
     }
 }
 
-module.exports = { getSummary, getWeekly, getPersonalBests };
+async function getStreak(req, res, next) {
+    try {
+        const userId = req.user.userId;
+
+        const runs = await prisma.run.findMany({
+            where: { userId, deletedAt: null },
+            select: { date: true },
+            orderBy: { date: "desc" },
+        });
+
+        if (runs.length === 0) {
+            return res.json({ currentWeekStreak: 0, bestWeekStreak: 0, totalWeeksWithRuns: 0 });
+        }
+
+        // Raggruppa corse per settimana (lunedì)
+        const weekSet = new Set();
+        for (const r of runs) {
+            weekSet.add(formatYMD(startOfWeekMonday(r.date)));
+        }
+
+        const sortedWeeks = [...weekSet].sort().reverse();
+
+        // Streak corrente: settimane consecutive dalla corrente/precedente
+        const now = new Date();
+        const thisWeek = formatYMD(startOfWeekMonday(now));
+        const lastWeek = formatYMD(addDays(startOfWeekMonday(now), -7));
+
+        let currentWeekStreak = 0;
+        const startFrom = sortedWeeks[0] === thisWeek || sortedWeeks[0] === lastWeek
+            ? sortedWeeks[0]
+            : null;
+
+        if (startFrom) {
+            const lookup = new Set(sortedWeeks);
+            let w = startFrom;
+            while (lookup.has(w)) {
+                currentWeekStreak++;
+                w = formatYMD(addDays(new Date(w + "T00:00:00Z"), -7));
+            }
+        }
+
+        // Miglior streak di sempre
+        const chronological = [...weekSet].sort();
+        let bestWeekStreak = 0;
+        let streak = 0;
+        for (let i = 0; i < chronological.length; i++) {
+            if (i === 0) {
+                streak = 1;
+            } else {
+                const prev = new Date(chronological[i - 1] + "T00:00:00Z");
+                const curr = new Date(chronological[i] + "T00:00:00Z");
+                const diffDays = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+                streak = diffDays === 7 ? streak + 1 : 1;
+            }
+            if (streak > bestWeekStreak) bestWeekStreak = streak;
+        }
+
+        return res.json({ currentWeekStreak, bestWeekStreak, totalWeeksWithRuns: weekSet.size });
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function getCalendar(req, res, next) {
+    try {
+        const userId = req.user.userId;
+        const months = Math.min(Math.max(parseInt(req.query.months || "6", 10), 1), 12);
+
+        const from = new Date();
+        from.setMonth(from.getMonth() - months);
+        from.setDate(1);
+        from.setHours(0, 0, 0, 0);
+
+        const runs = await prisma.run.findMany({
+            where: { userId, deletedAt: null, date: { gte: from } },
+            select: { date: true, distanceKm: true },
+            orderBy: { date: "asc" },
+        });
+
+        const days = {};
+        for (const r of runs) {
+            const key = r.date.toISOString().slice(0, 10);
+            if (!days[key]) days[key] = { count: 0, totalKm: 0 };
+            days[key].count++;
+            days[key].totalKm += Number(r.distanceKm || 0);
+        }
+
+        const entries = Object.entries(days).map(([date, d]) => ({
+            date,
+            count: d.count,
+            totalKm: Math.round(d.totalKm * 10) / 10,
+        }));
+
+        return res.json({ from: from.toISOString(), entries });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { getSummary, getWeekly, getPersonalBests, getStreak, getCalendar };

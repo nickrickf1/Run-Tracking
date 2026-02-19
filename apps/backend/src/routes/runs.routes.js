@@ -9,6 +9,8 @@ const {
     updateRun,
     deleteRun,
     exportCsv,
+    uploadAudio,
+    deleteAudio,
 } = require('../controllers/runs.controller');
 const { importGpx } = require('../controllers/import.controller');
 
@@ -22,6 +24,8 @@ router.get("/", listRuns)
 router.get("/export/csv", exportCsv)
 router.get("/:id", getRunById)
 router.patch("/:id", updateRun)
+router.post("/:id/audio", upload.single("audio"), uploadAudio)
+router.delete("/:id/audio", deleteAudio)
 router.delete("/:id", deleteRun)
 
 module.exports = router

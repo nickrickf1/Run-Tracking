@@ -1,12 +1,13 @@
 import { apiFetch } from "./api";
 
-export function listRuns(token, { page = 1, pageSize = 10, from, to, type } = {}) {
+export function listRuns(token, { page = 1, pageSize = 10, from, to, type, search } = {}) {
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
     if (from) params.set("from", from);
     if (to) params.set("to", to);
     if (type) params.set("type", type);
+    if (search) params.set("search", search);
     return apiFetch(`/runs?${params.toString()}`, { token });
 }
 
