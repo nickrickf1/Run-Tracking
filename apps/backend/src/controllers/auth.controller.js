@@ -6,12 +6,12 @@ const BCRYPT_ROUNDS = 12;
 
 const registerSchema = z.object({
     name: z.string().min(2),
-    email: z.email(),
+    email: z.string().email(),
     password: z.string().min(8),
 });
 
 const loginSchema = z.object({
-    email: z.email(),
+    email: z.string().email(),
     password: z.string().min(8),
 });
 
